@@ -1,11 +1,11 @@
 <?php get_header(); ?>
 
 <div class="wrapper">
-     <!-- HAMBURGER MENU -->
+    <!-- HAMBURGER MENU -->
     <div class="white-header header mobile-header-bg-image">
         <div class="hamburger-logo">
-<!--             <a href="<?php echo site_url(); ?>" class="hamburger-logo-white"><img src="https://www.rect-a.com/wp-content/uploads/2024/07/logo-mobile.png" alt="rect-logo-white"></a> -->
-            <a href="<?php echo site_url(); ?>" class="hamburger-logo-black visible"><img src="https://www.rect-a.com/wp-content/uploads/2024/05/rect.gif" alt="rect-logo-black"></a>
+            <!--             <a href="<?php echo site_url(); ?>" class="hamburger-logo-white"><img src="https://rect-a.com/wp-content/uploads/2024/07/logo-mobile.png" alt="rect-logo-white"></a> -->
+            <a href="<?php echo site_url(); ?>" class="hamburger-logo-black visible"><img src="https://www.rect-a.com/wp-content/uploads/2024/11/rect.gif" alt="rect-logo-black"></a>
         </div>
         <div class="hamburger-menu black-lines">
             <div class="bar"></div>
@@ -84,7 +84,7 @@
                         <!-- <button class="photo-filter-button" data-tag="all">ALL</button> -->
                         <?php
                         // Define custom tag order
-                        $custom_tag_order = array('外観', '玄関', 'LDK', '階段', '洗面室・浴室', 'トイレ', '寝室', '書斎', '和室', 'ガレージ', '庭・テラス');
+                        $custom_tag_order = array('外観', '玄関', 'LDK', '階段', '洗面室・浴室', 'トイレ', '寝室', '書斎', '和室', '収納', 'ガレージ', '庭・テラス');
 
                         // Get all unique tags associated with media items
                         $all_tags = array();
@@ -129,9 +129,15 @@
                                 <a href="/photos" class="scene-link scene-link-photos">Scene</a>
                             </div>
                             <div class="filter-buttons-mobile">
-                                <select id="filter-dropdown">
+                                <!--                                 <select id="filter-dropdown">
                                 </select>
-                                <img src="https://www.rect-a.com/wp-content/uploads/2024/08/mobile-photo-arrow.png" alt="mobile-dropdown-arrow" class="mobile-photo-arrow">
+                                <img src="https://rect-a.com/wp-content/uploads/2024/08/mobile-photo-arrow.png" alt="mobile-dropdown-arrow" class="mobile-photo-arrow"> -->
+                                <?php
+                                foreach ($custom_tag_order as $tag_name) {
+                                    echo '<a href="#" class="mobile-filter-button" data-tag="' . esc_attr($tag_name) . '">' . esc_html($tag_name) . '</a>';
+                                }
+                                ?>
+                                <a href="#" class="mobile-filter-button" data-tag="all">ALL</a>
                             </div>
                         </div>
                     </aside>
@@ -183,7 +189,7 @@
 
                                     // Display image
                                     echo '<a href="' . esc_url($parent_project_url) . '">';
-                                    echo '<img class="lazy hidden" data-src="' . esc_url($image_url_full) . '" src="' . esc_url($image_url_thumbnail) . '" alt="' . esc_attr($image_alt) . '" 
+                                    echo '<img class="lazy" data-src="' . esc_url($image_url_full) . '" src="' . esc_url($image_url_thumbnail) . '" alt="' . esc_attr($image_alt) . '" 
                 srcset="' . esc_url($image_url_thumbnail) . ' 150w, ' . esc_url($image_url_medium) . ' 300w, ' . esc_url($image_url_large) . ' 768w, ' . esc_url($image_url_full) . ' 1024w" 
                 sizes="(max-width: 768px) 100vw, 768px">';
                                     echo '</a>';
@@ -208,7 +214,7 @@
     <section class="contacts">
         <div class="contact-title">Contact Us</div>
         <div class="contact-subtitle">お問い合わせはこちらから</div>
-        <a href="https://www.rect-a.com/contacts/" class="contact-form">
+        <a href="https://rect-a.com/contacts/" class="contact-form">
             <p class="footer-contact-form-title">Contact Form</p>
             <p class="footer-contact-form-icon">></p>
         </a>

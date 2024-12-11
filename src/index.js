@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // // ------------------------------------------------------- Photos Filter by Tags -------------------------------------------------------
 jQuery(document).ready(function ($) {
-  $(".filter-button").on("click", function () {
+  $(".photo-filter-button").on("click", function () {
     const selectedTag = $(this).data("tag");
     if (selectedTag === "all") {
       $(".gallery-item").show();
@@ -212,13 +212,31 @@ jQuery(document).ready(function ($) {
       $(".gallery-item").hide();
       $(".gallery-item").each(function () {
         const tags = $(this).data("tags");
-        if (tags.indexOf(selectedTag) !== -1) {
+        if (tags && tags.indexOf(selectedTag) !== -1) {
+          $(this).show();
+        }
+      });
+    }
+  });
+
+  $(".mobile-filter-button").on("click", function (e) {
+    e.preventDefault();
+    const selectedTag = $(this).data("tag");
+	  console.log(selectedTag)
+    if (selectedTag === "all") {
+      $(".gallery-item").show();
+    } else {
+      $(".gallery-item").hide();
+      $(".gallery-item").each(function () {
+        const tags = $(this).data("tags");
+        if (tags && tags.indexOf(selectedTag) !== -1) {
           $(this).show();
         }
       });
     }
   });
 });
+
 
 // // ------------------------------------------------------- Functionality for carousel and hotspots -------------------------------------------------------
 const slides = Array.from(document.querySelectorAll(".carousel-slide"));
@@ -403,45 +421,6 @@ window.addEventListener("load", () => {
   const slides = document.querySelectorAll(".carousel-slide");
   slides.forEach(addHotspotsForImage);
 });
-
-// // ------------------------------------------------------- Fullscreen functionality -------------------------------------------------------
-let isFullscreen = false;
-
-function toggleFullScreen(element) {
-  if (!document.fullscreenElement) {
-    element.requestFullscreen();
-    isFullscreen = true;
-  }
-}
-
-function exitFullScreen() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-    isFullscreen = false;
-  }
-}
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && isFullscreen) {
-    exitFullScreen();
-  }
-});
-
-slides.forEach((slide) => {
-  slide.addEventListener("click", () => {
-    if (isFullscreen) exitFullScreen();
-  });
-});
-
-const arrowExpandBtn = document.querySelector(".expand-arrow");
-if (arrowExpandBtn) {
-  arrowExpandBtn.addEventListener("click", () => {
-    const activeSlideImg = document.querySelector(".carousel-slide.active img");
-    if (activeSlideImg) {
-      toggleFullScreen(activeSlideImg);
-    }
-  });
-}
 
 // ------------------------------------------------------- Projects grid layout change -------------------------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
@@ -836,11 +815,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ------------------------------------------------------- FILTER BY TAGS -------------------------------------------------------
-
 document.addEventListener("DOMContentLoaded", function () {
   const filterButtons = document.querySelectorAll(".photo-filter-button");
+  const filterButtonsMobile = document.querySelectorAll(".mobile-filter-button");
   const galleryItems = document.querySelectorAll(".gallery-item");
-  // const filterDropdown = document.getElementById("filter-dropdown");
 
   // Set active class for the selected button
   function setActiveButton(tag) {
@@ -851,9 +829,17 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.classList.remove("active");
       }
     });
+
+    filterButtonsMobile.forEach((btn) => {
+      if (btn.getAttribute("data-tag") === tag) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
   }
 
-  // Event listeners for filter buttons
+  // Event listeners for desktop filter buttons
   if (filterButtons.length > 0) {
     filterButtons.forEach((button) => {
       button.addEventListener("click", function () {
@@ -867,135 +853,60 @@ document.addEventListener("DOMContentLoaded", function () {
     console.error("No filter buttons found.");
   }
 
-  // // Event listener for filter dropdown on mobile
-  // if (filterDropdown) {
-  //   filterDropdown.addEventListener("change", function () {
-  //     const selectedTag = this.value;
-  //     filterGallery(selectedTag);
-  //     window.scrollTo({ top: 0, behavior: "smooth" });
-
-  //     // Remove the active class from all buttons when dropdown is used
-  //     filterButtons.forEach((btn) => btn.classList.remove("active"));
-  //   });
-  // } else {
-  //   console.error("Filter dropdown not found.");
-  // }
+  // Event listeners for mobile filter buttons
+  if (filterButtonsMobile.length > 0) {
+    filterButtonsMobile.forEach((button) => {
+      button.addEventListener("click", function () {
+        const selectedTag = this.getAttribute("data-tag");
+        setActiveButton(selectedTag);
+        filterGallery(selectedTag);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+  } else {
+    console.error("No mobile filter buttons found.");
+  }
 
   // Filter gallery items based on the selected tag
   function filterGallery(selectedTag) {
     galleryItems.forEach((item) => {
-      const itemTags = JSON.parse(item.getAttribute("data-tags") || "[]");
-      if (selectedTag === "all" || itemTags.includes(selectedTag)) {
-        item.style.display = "grid";
-      } else {
-        item.style.display = "none";
+      try {
+        const itemTags = JSON.parse(item.getAttribute("data-tags") || "[]");
+        if (selectedTag === "all" || itemTags.includes(selectedTag)) {
+          item.style.display = "grid";
+        } else {
+          item.style.display = "none";
+        }
+      } catch (error) {
+        console.error("Error parsing tags:", error);
       }
     });
   }
 
-  // // Limit dropdown options to only selected tags in custom order
-  // const customTagOrder = [
-  //   "外観",
-  //   "玄関",
-  //   "LDK",
-  //   "階段",
-  //   "洗面室・浴室",
-  //   "トイレ",
-  //   "寝室",
-  //   "書斎",
-  //   "和室",
-  //   "ガレージ",
-  //   "庭・テラス",
-  // ];
-  // if (filterDropdown) {
-  //   customTagOrder.forEach((tag) => {
-  //     const option = document.createElement("option");
-  //     option.value = tag;
-  //     option.className = "dropdown-option";
-  //     option.textContent = tag;
-  //     filterDropdown.appendChild(option);
-  //   });
-
-  //   // Append the "ALL" option at the end
-  //   const allOption = document.createElement("option");
-  //   allOption.value = "all";
-  //   allOption.className = "dropdown-option";
-  //   allOption.textContent = "ALL";
-  //   filterDropdown.appendChild(allOption);
-  // }
-
-  // Initialize the filter by showing items with "外観" tag and setting "外観" as the active filter
-  const initialTag = "外観";
-  filterGallery(initialTag);
-  setActiveButton(initialTag);
-
-  // Set the dropdown to the initialTag
-  if (filterDropdown) {
-    filterDropdown.value = initialTag;
-  }
+  // Initialize the filter by showing all items
+  filterGallery("all");
 });
 
 // ------------------------------------------------------- PRODUCT MODAL -------------------------------------------------------
-// document.addEventListener("DOMContentLoaded", function () {
-//   function closeModal(modal) {
-//     if (modal) modal.style.display = "none";
-//     document.body.style.overflow = "";
-//   }
-
-//   function openModal(modal) {
-//     document.querySelectorAll(".modal").forEach(function (m) {
-//       m.style.display = "none";
-//     });
-
-//     if (modal) {
-//       modal.style.display = "block";
-//       document.body.style.overflow = "hidden";
-//     }
-//   }
-
-//   function checkForProductId() {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const productId = urlParams.get("product_id");
-
-//     if (productId) {
-//       const modal = document.getElementById("product-" + productId);
-//       openModal(modal);
-//     }
-//   }
-
-//   checkForProductId();
-
-//   let productLinks = document.querySelectorAll(".product-link");
-//   productLinks.forEach(function (link) {
-//     link.addEventListener("click", function (event) {
-//       event.preventDefault();
-//       let productId = link.getAttribute("data-product-id");
-//       let modal = document.getElementById(productId);
-//       openModal(modal);
-//     });
-//   });
-
-//   let closeButtons = document.querySelectorAll(".modal .close");
-//   closeButtons.forEach(function (button) {
-//     button.addEventListener("click", function () {
-//       let modal = button.closest(".modal");
-//       closeModal(modal);
-//     });
-
-//     button.addEventListener("touchstart", function () {
-//       let modal = button.closest(".modal");
-//       closeModal(modal);
-//     });
-//   });
-
-//   window.addEventListener("click", function (event) {
-//     if (event.target.classList.contains("modal")) {
-//       closeModal(event.target);
-//     }
-//   });
-// });
-
 document.addEventListener("DOMContentLoaded", function () {
+	 // Select all elements that trigger the modal opening (jump from frontpage)
+   const triggers = document.querySelectorAll(".category-link.navigate-link");
+
+  triggers.forEach(function(trigger) {
+    trigger.addEventListener("click", function(event) {
+      event.preventDefault();
+
+      const categoryId = this.getAttribute("data-category-id");
+      const url = new URL(window.location);
+
+      url.pathname = "/products/";
+      url.searchParams.set("categoryId", categoryId);
+		
+      // Navigate to the new URL
+      window.location.href = url.toString();
+    });
+  });
+	
   // Close modal function
   function closeModal(modal) {
     if (modal) modal.style.display = "none";
@@ -1022,7 +933,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Close modal when the close button is clicked
   let closeButtons = document.querySelectorAll(".modal .close");
   closeButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
+    button.addEventListener("click", function (event) {
+		event.preventDefault();
+		
       const modal = button.closest(".modal");
       closeModal(modal);
 
@@ -1036,7 +949,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    button.addEventListener("touchstart", function () {
+    button.addEventListener("touchstart", function (event) {
+		event.preventDefault();
+		
       const modal = button.closest(".modal");
       closeModal(modal);
 
@@ -1081,16 +996,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const productItems = modal.querySelectorAll(".product-item");
       const productDescription = modal.querySelector(".product-list-item-description h3")
 
-      console.log(productInfo)
-      console.log(productDescription)
-
       // Remove "selected" class from all product items
       productItems.forEach((item) => item.classList.remove("selected"));
 
       // Add "selected" class to the clicked product item
       this.closest(".product-item").classList.add("selected");
 
-      largeImage.src = fullImageUrl;
+//       largeImage.src = fullImageUrl;
       productDescription.textContent = productInfo;
 
       // Create an image object to check the dimensions
@@ -1105,7 +1017,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Set the large image src after determining the size
         largeImage.src = fullImageUrl;
-
+		  
         // Check the window width
         const windowWidth = window.innerWidth;
 
@@ -1341,7 +1253,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Add event listener for category link click to initialize carousel
-  const categoryLinks = document.querySelectorAll(".category-link");
+  const categoryLinks = document.querySelectorAll(".category-link.modal-link");
   categoryLinks.forEach((link) => {
     link.addEventListener("click", function (event) {
       event.preventDefault();
@@ -1466,7 +1378,6 @@ jQuery(document).ready(function ($) {
 
 // // ------------------------------------------------------- Lazy-load functionality -------------------------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
-
   function loadImage(image) {
     const src = image.getAttribute("data-src");
 
@@ -1495,7 +1406,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function handleIntersect(entries, observer) {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        console.log("Intersection observed:", entry.target);
         const images = entry.target.querySelectorAll("img.lazy");
         images.forEach((img) => loadImage(img));
         observer.unobserve(entry.target);
@@ -1505,141 +1415,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const observer = new IntersectionObserver(handleIntersect, {
     root: null,
-    rootMargin: "0px",
+    rootMargin: "10px",
     threshold: 0.1,
   });
 
-  const targets = document.querySelectorAll(
-    ".custom-gallery"
-  );
+  const targets = document.querySelectorAll(".gallery-item");
 
   if (targets.length === 0) {
     console.error("No targets found for the observer.");
   } else {
     targets.forEach((target) => observer.observe(target));
   }
+
+  // Fallback mechanism to manually load images if IntersectionObserver does not trigger
+  const lazyImages = document.querySelectorAll("img.lazy");
+  lazyImages.forEach((img) => {
+    if (img.classList.contains("hidden")) {
+      loadImage(img);
+    }
+  });
 });
 
 
+
+
 // // ------------------------------------------------------- Hotspot Adjustment functionality -------------------------------------------------------
-// document.addEventListener("DOMContentLoaded", function () {
-//   function setInitialDatasetAttributes(hotspot) {
-//     const topStyle = hotspot.style.top;
-//     const leftStyle = hotspot.style.left;
-//     if (topStyle && leftStyle) {
-//       // Remove the 'px' and convert to percentage
-//       hotspot.dataset.topPercent = parseFloat(topStyle);
-//       hotspot.dataset.leftPercent = parseFloat(leftStyle);
-//     }
-//   }
-
-//   function adjustHotspots(image, containerSelector) {
-//     if (!image.complete) return;
-
-//     const rect = image.getBoundingClientRect();
-//     if (rect.width === 0 || rect.height === 0) return;
-
-//     const displayedWidth = Math.round(rect.width);
-//     const displayedHeight = Math.round(rect.height);
-//     const container = image.closest(containerSelector);
-//     if (!container) return;
-
-//     console.log("displayedWidth", displayedWidth, "displayedHeight", displayedHeight)
-
-//     const hotspots = container.querySelectorAll(".hotspot-project-archive");
-
-//     hotspots.forEach((hotspot) => {
-//       const topPercent = parseFloat(hotspot.dataset.topPercent);
-//       const leftPercent = parseFloat(hotspot.dataset.leftPercent);
-
-//       console.log("topPercent", topPercent, 'leftPercent', leftPercent)
-
-//       if (isNaN(topPercent) || isNaN(leftPercent)) return;
-
-//       let xPos, yPos;
-// if (
-//   displayedWidth >= 670 &&
-//   displayedWidth <= 673 &&
-//   displayedHeight >= 1006 &&
-//   displayedHeight <= 1009
-// ) {
-//   xPos = (leftPercent / 100) * 2.1 * displayedWidth;
-//   yPos = (topPercent / 100) * 1.05 * displayedHeight;
-// } else if (
-//   displayedWidth >= 670 &&
-//   displayedWidth <= 673 &&
-//   displayedHeight >= 950 &&
-//   displayedHeight <= 953
-// ) {
-//   xPos = (leftPercent / 100) * 1.18 * displayedWidth;
-//   yPos = (topPercent / 100) * 0.97 * displayedHeight;
-// } else if (
-//   displayedWidth >= 670 &&
-//   displayedWidth <= 673 &&
-//   displayedHeight >= 897 &&
-//   displayedHeight <= 900
-// ) {
-//   xPos = (leftPercent / 100) * 1.5 * displayedWidth;
-//   yPos = (topPercent / 100) * 0.97 * displayedHeight;
-// } else if (
-//   displayedWidth >= 1438 &&
-//   displayedWidth <= 1442 &&
-//   displayedHeight >= 1018 &&
-//   displayedHeight <= 1019
-// ) {
-//   xPos = (leftPercent / 100) * displayedWidth;
-//   yPos = (topPercent / 100) * displayedHeight;
-// } else if (
-//   displayedWidth >= 1438 &&
-//   displayedWidth <= 1442 &&
-//   displayedHeight >= 959 &&
-//   displayedHeight <= 960
-// ) {
-//   xPos = (leftPercent / 100) * displayedWidth;
-//   yPos = (topPercent / 100) * (displayedHeight - 55);
-// } else {
-//   xPos = (leftPercent / 100) * displayedWidth;
-//   yPos = (topPercent / 100) * displayedHeight;
-// }
-
-//       xPos = (leftPercent / 100) * displayedWidth;
-//       yPos = (topPercent / 100) * displayedHeight;
-
-//       console.log(xPos, yPos)
-//       hotspot.style.left = `${xPos}px`;
-//       hotspot.style.top = `${yPos}px`;
-//     });
-//   }
-
-//   function handleImageLoad(image, containerSelector) {
-//     if (image.complete) {
-//       adjustHotspots(image, containerSelector);
-//     } else {
-//       image.addEventListener("load", () => {
-//         setTimeout(() => adjustHotspots(image, containerSelector), 100);
-//       });
-//     }
-
-//     window.addEventListener("resize", () =>
-//       adjustHotspots(image, containerSelector)
-//     );
-//   }
-
-//   document.querySelectorAll(".hotspot-project-archive").forEach((hotspot) => {
-//     setInitialDatasetAttributes(hotspot);
-//   });
-
-//   document.querySelectorAll(".project-gallery-item img").forEach((image) => {
-//     handleImageLoad(image, ".project-gallery-item");
-//   });
-
-//   document
-//     .querySelectorAll(".single-project-thumbnail img")
-//     .forEach((image) => {
-//       handleImageLoad(image, ".single-project-thumbnail");
-//     });
-// });
-
 document.addEventListener("DOMContentLoaded", function () {
   var hotspots = document.querySelectorAll(".hotspot-project-archive");
 
@@ -1657,81 +1457,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// // ------------------------------------------------------- Link to archive-product.php functionality -------------------------------------------------------
-// document.addEventListener("DOMContentLoaded", function () {
-//   const productInfos = document.querySelectorAll(".product-info");
-
-//   productInfos.forEach(function (element) {
-//     element.addEventListener("click", function (event) {
-//       event.preventDefault(); // Prevent default anchor behavior
-
-//       let productId = this.getAttribute("data-product-id").replace(
-//         "product-",
-//         ""
-//       ); // Remove "product-" prefix
-
-//       // Redirect to /products/ page with productId as a query parameter
-//       const url = new URL(window.location.href);
-//       url.pathname = "/products/";
-//       url.searchParams.set("productId", productId);
-//       window.location.href = url.toString();
-//     });
-//   });
-
-//   // Check URL for query parameter and open corresponding modal
-//   const urlParams = new URLSearchParams(window.location.search);
-//   const productId = urlParams.get("productId");
-
-//   if (productId) {
-//     const modal = document.querySelector(`#product-${productId}`);
-//     if (modal) {
-//       modal.classList.add("modal-open");
-//       document.body.style.overflow = "hidden";
-//     }
-//   }
-
-//   const closeBtns = document.querySelectorAll(".modal .close");
-//   closeBtns.forEach(function (closeBtn) {
-//     closeBtn.addEventListener("click", function () {
-//       const modal = closeBtn.closest(".modal");
-//       if (modal) {
-//         modal.classList.remove("modal-open");
-//         document.body.style.overflow = "";
-//       }
-//     });
-//   });
-// });
-
-// ---------------------------------------- Working Now
-document.addEventListener("DOMContentLoaded", function () {
-  // Select all category links that trigger the modal opening
-  const productInfos = document.querySelectorAll(".product-info");
-
-  // Handle click on category link to open the modal and redirect
-  productInfos.forEach(function (link) {
-    link.addEventListener("click", function (event) {
-      event.preventDefault();
-
-      const categoryId = this.getAttribute("data-category-id");
-      const url = new URL(window.location.href);
-      url.pathname = "/products/";
-      url.searchParams.set("categoryId", categoryId);
-      window.location.href = url.toString();
-    });
-  });
-
-  // Close modal functionality
-  const closeBtns = document.querySelectorAll(".modal .close");
-  closeBtns.forEach(function (closeBtn) {
-    closeBtn.addEventListener("click", function () {
-      const modal = closeBtn.closest(".modal");
-      if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "";
-      }
-    });
-  });
-});
 
 // // ------------------------------------------------------- Display "Display Order" at Projects List on Admin Page functionality -------------------------------------------------------
 jQuery(document).ready(function ($) {
